@@ -1,7 +1,7 @@
 services:
   app:
     build:
-      context: .                         # ✅ корень проекта
+      context: .
       dockerfile: product_service/Dockerfile
 
     container_name: fastapi_app_product
@@ -17,7 +17,7 @@ services:
       - product_service/.env
 
     volumes:
-      - .:/app                           # ✅ весь проект
+      - .:/app
 
     command: uvicorn product_service.main:app --host 0.0.0.0 --port 8000 --reload
 

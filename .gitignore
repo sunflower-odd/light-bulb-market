@@ -1,3 +1,4 @@
 .idea/
 .venv/
 product_service/.env
+order_service/.env
