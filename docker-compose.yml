@@ -1,0 +1,50 @@
+services:
+  app:
+    build:
+      context: .                         # ✅ корень проекта
+      dockerfile: product_service/Dockerfile
+
+    container_name: fastapi_app_product
+
+    ports:
+      - "8000:8000"
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+    env_file:
+      - product_service/.env
+
+    volumes:
+      - .:/app                           # ✅ весь проект
+
+    command: uvicorn product_service.main:app --host 0.0.0.0 --port 8000 --reload
+
+  db:
+    image: postgres:15
+    container_name: postgres_db_product
+    restart: always
+
+    env_file:
+      - product_service/.env
+
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+
+    ports:
+      - "5435:5432"
+
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d product_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pgdata:
