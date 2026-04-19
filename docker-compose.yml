@@ -1,5 +1,5 @@
 services:
-  app:
+  product_app:
     build:
       context: .
       dockerfile: product_service/Dockerfile
@@ -10,7 +10,7 @@ services:
       - "8000:8000"
 
     depends_on:
-      db:
+      product_db:
         condition: service_healthy
 
     env_file:
@@ -21,7 +21,31 @@ services:
 
     command: uvicorn product_service.main:app --host 0.0.0.0 --port 8000 --reload
 
-  db:
+
+  order_app:
+    build:
+      context: .
+      dockerfile: order_service/Dockerfile
+
+    container_name: fastapi_app_order
+
+    ports:
+      - "8001:8000"
+
+    depends_on:
+      order_db:
+        condition: service_healthy
+
+    env_file:
+      - order_service/.env
+
+    volumes:
+      - .:/app
+
+    command: uvicorn order_service.main:app --host 0.0.0.0 --port 8000 --reload
+
+
+  product_db:
     image: postgres:15
     container_name: postgres_db_product
     restart: always
@@ -29,16 +53,11 @@ services:
     env_file:
       - product_service/.env
 
-    environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
-
     ports:
       - "5435:5432"
 
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata_product:/var/lib/postgresql/data
 
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d product_db"]
@@ -46,5 +65,28 @@ services:
       timeout: 5s
       retries: 10
 
+
+  order_db:
+    image: postgres:15
+    container_name: postgres_db_order
+    restart: always
+
+    env_file:
+      - order_service/.env
+
+    ports:
+      - "5436:5432"
+
+    volumes:
+      - pgdata_order:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d order_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+
 volumes:
-  pgdata:
+  pgdata_product:
+  pgdata_order:

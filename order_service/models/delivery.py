@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 
-from product_service.db import Base
+from order_service.db import Base
 
 class Delivery(Base):
     __tablename__ = "deliveries"

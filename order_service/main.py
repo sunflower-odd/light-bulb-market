@@ -1,22 +1,26 @@
 from fastapi import FastAPI
 
-from order_service.routers import address, delivery, order, order_item, order_promo, reviews
+from order_service.routers import address, delivery, order, order_item, order_promo, review, user
 from order_service.db import engine, Base
-from order_service import models
+
 
 
 app = FastAPI()
 
 @app.on_event("startup")
 def startup():
+    from order_service import models
     Base.metadata.create_all(bind=engine)
 
+
+app.include_router(user.router)
 app.include_router(address.router)
 app.include_router(delivery.router)
 app.include_router(order.router)
 app.include_router(order_item.router)
 app.include_router(order_promo.router)
-app.include_router(reviews.router)
+app.include_router(review.router)
+
 
 if __name__ == "__main__":
     import uvicorn

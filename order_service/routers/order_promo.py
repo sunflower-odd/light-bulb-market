@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import List
 from sqlalchemy.orm import Session
+import requests
 
 from product_service.db import get_db
 from order_service.models.order_promo import OrderPromo
@@ -8,6 +9,15 @@ from order_service.schemas.order_promo import OrderPromoCreate, OrderPromoUpdate
 
 router = APIRouter(prefix="/order-promos", tags=["OrderPromos"])
 
+PRODUCT_SERVICE_URL = "http://product_app:8000"
+
+def get_promo(promo_id: int):
+    response = requests.get(f"{PRODUCT_SERVICE_URL}/promos/{promo_id}")
+
+    if response.status_code != 200:
+        return None
+
+    return response.json()
 
 @router.get("/", response_model=List[OrderPromoResponse])
 def get_order_promos(db: Session = Depends(get_db)):
@@ -17,6 +27,13 @@ def get_order_promos(db: Session = Depends(get_db)):
 @router.post("/", response_model=OrderPromoResponse)
 def create_order_promo(order_promo: OrderPromoCreate, db: Session = Depends(get_db)):
     db_obj = OrderPromo(**order_promo.model_dump())
+
+    promo = get_promo(db_obj.promo_id)
+
+    if not promo:
+        raise HTTPException(status_code=404, detail="Promo not found")
+
+
     db.add(db_obj)
     db.commit()
     db.refresh(db_obj)

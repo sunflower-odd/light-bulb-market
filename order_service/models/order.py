@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
-from product_service.db import Base
+from order_service.db import Base
 
 class Order(Base):
     __tablename__ = "orders"

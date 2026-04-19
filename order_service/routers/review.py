@@ -1,13 +1,23 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import List
 from sqlalchemy.orm import Session
+import requests
 
-from product_service.db import get_db
-from product_service.models.review import Review
-from product_service.schemas.review import ReviewCreate, ReviewUpdate, ReviewResponse
+from order_service.db import get_db
+from order_service.models.review import Review
+from order_service.schemas.review import ReviewCreate, ReviewUpdate, ReviewResponse
 
 router = APIRouter(prefix="/reviews", tags=["Reviews"])
 
+PRODUCT_SERVICE_URL = "http://product_app:8000"
+
+def get_product(product_id: int):
+    response = requests.get(f"{PRODUCT_SERVICE_URL}/products/{product_id}")
+
+    if response.status_code != 200:
+        return None
+
+    return response.json()
 
 @router.get("/", response_model=List[ReviewResponse])
 def get_reviews(db: Session = Depends(get_db)):
@@ -17,6 +27,13 @@ def get_reviews(db: Session = Depends(get_db)):
 @router.post("/", response_model=ReviewResponse)
 def create_review(review: ReviewCreate, db: Session = Depends(get_db)):
     db_review = Review(**review.model_dump())
+
+    product = get_product(db_review.product_id)
+
+    if not product:
+        raise HTTPException(status_code=404, detail="Promo not found")
+
+
     db.add(db_review)
     db.commit()
     db.refresh(db_review)

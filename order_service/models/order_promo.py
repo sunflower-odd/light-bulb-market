@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer,  ForeignKey
-from product_service.db import Base
+from order_service.db import Base
 
 class OrderPromo(Base):
     __tablename__ = "order_promos"
@@ -7,4 +7,4 @@ class OrderPromo(Base):
     id = Column(Integer, primary_key=True, index=True)
 
     order_id = Column(Integer, ForeignKey("orders.order_id"), nullable=False)
-    promo_id = Column(Integer, ForeignKey("promos.promo_id"), nullable=False)
+    promo_id = Column(Integer, nullable=False)

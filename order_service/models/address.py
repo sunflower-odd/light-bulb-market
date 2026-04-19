@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
-from product_service.db import Base
+from order_service.db import Base
 
 class Address(Base):
     __tablename__ = "addresses"
