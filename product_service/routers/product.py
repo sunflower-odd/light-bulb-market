@@ -8,10 +8,32 @@ from product_service.db import get_db
 router = APIRouter(prefix="/products", tags=["Products"])
 
 
+from fastapi import APIRouter, Depends, Query
+from sqlalchemy.orm import Session
+from typing import List, Optional
+
 @router.get("/", response_model=List[ProductResponse])
-def get_products(db: Session = Depends(get_db)):
-    products = db.query(Product).all()
-    return products
+def get_products(
+    db: Session = Depends(get_db),
+    category_id: Optional[int] = Query(None),
+    max_price: Optional[float] = Query(None),
+    search: Optional[str] = Query(None),
+):
+    query = db.query(Product)
+
+    # фильтр по категории
+    if category_id:
+        query = query.filter(Product.category_id == category_id)
+
+    # фильтр по цене
+    if max_price:
+        query = query.filter(Product.price <= max_price)
+
+    # поиск по названию
+    if search:
+        query = query.filter(Product.title.ilike(f"%{search}%"))
+
+    return query.all()
 
 @router.get("/{product_id}", response_model=ProductResponse)
 def get_product_by_id(product_id: int, db: Session = Depends(get_db)):

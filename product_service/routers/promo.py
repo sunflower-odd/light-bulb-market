@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from typing import List
 from sqlalchemy.orm import Session
 
+from datetime import datetime
+
 from product_service.db import get_db
 from product_service.models.promo import Promo
 from product_service.schemas.promo import PromoCreate, PromoUpdate, PromoResponse
@@ -23,6 +25,34 @@ def get_promo(promo_id: int, db: Session = Depends(get_db)):
 
     return promo
 
+
+@router.get("/check/{title}")
+def check_promo(
+    title: str,
+    db: Session = Depends(get_db)
+):
+    now = datetime.utcnow()
+
+    promo = (
+        db.query(Promo)
+        .filter(
+            Promo.title == title,
+            Promo.start_date <= now,
+            Promo.end_date >= now
+        )
+        .first()
+    )
+
+    if not promo:
+        raise HTTPException(
+            status_code=404,
+            detail="Promo not found or expired"
+        )
+
+    return {
+        "title": promo.title,
+        "discount_percent": promo.discount_percent
+    }
 
 @router.post("/", response_model=PromoResponse)
 def create_promo(promo: PromoCreate, db: Session = Depends(get_db)):

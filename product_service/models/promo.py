@@ -10,6 +10,8 @@ class Promo(Base):
     title = Column(String(255), nullable=False)
     description = Column(String(500))
 
+    discount_percent = Column(Integer, default=10)
+
     start_date = Column(DateTime, nullable=False)
     end_date = Column(DateTime, nullable=False)
 
