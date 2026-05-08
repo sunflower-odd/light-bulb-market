@@ -1,11 +1,12 @@
 from pydantic import BaseModel
 from typing import Optional
-
+from decimal import Decimal
 
 class OrderItemBase(BaseModel):
     order_id: int
     product_id: int
     quantity: Optional[int] = None
+    price: Decimal
 
 
 class OrderItemCreate(OrderItemBase):

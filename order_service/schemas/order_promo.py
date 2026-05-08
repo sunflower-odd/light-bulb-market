@@ -4,6 +4,7 @@ from pydantic import BaseModel
 class OrderPromoBase(BaseModel):
     order_id: int
     promo_id: int
+    discount_percent: int
 
 
 class OrderPromoCreate(OrderPromoBase):

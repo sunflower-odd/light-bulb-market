@@ -8,3 +8,4 @@ class OrderPromo(Base):
 
     order_id = Column(Integer, ForeignKey("orders.order_id"), nullable=False)
     promo_id = Column(Integer, nullable=False)
+    discount_percent = Column(Integer, nullable=False)

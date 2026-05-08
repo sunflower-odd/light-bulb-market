@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from order_service.routers import address, delivery, order, order_item, order_promo, review, user
+from order_service.routers import address, delivery, order, order_item, order_promo, review, user, auth
 from order_service.db import engine, Base
 
 app = FastAPI()
@@ -26,7 +26,7 @@ app.include_router(order.router)
 app.include_router(order_item.router)
 app.include_router(order_promo.router)
 app.include_router(review.router)
-
+app.include_router(auth.router)
 
 if __name__ == "__main__":
     import uvicorn

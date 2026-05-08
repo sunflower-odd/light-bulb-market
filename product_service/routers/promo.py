@@ -50,6 +50,7 @@ def check_promo(
         )
 
     return {
+        "promo_id": promo.promo_id,
         "title": promo.title,
         "discount_percent": promo.discount_percent
     }

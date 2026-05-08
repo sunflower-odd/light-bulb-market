@@ -19,6 +19,7 @@ def get_promo(promo_id: int):
 
     return response.json()
 
+
 @router.get("/", response_model=List[OrderPromoResponse])
 def get_order_promos(db: Session = Depends(get_db)):
     return db.query(OrderPromo).all()
