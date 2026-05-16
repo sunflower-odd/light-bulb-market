@@ -25,14 +25,28 @@ def get_me(
 
     return db_user
 
-@router.get("/{user_id}", response_model=UserResponse)
-def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
-    db_obj = db.query(User).filter(User.user_id == user_id).first()
+@router.get("/by-email")
+def get_user_by_email(email: str, db: Session = Depends(get_db)):
+    print("HIT BY EMAIL", email)
+    print(f'USER ##################### {email}')
+    user = db.query(User).filter(User.email == email).first()
 
-    if not db_obj:
-        raise HTTPException(status_code=404, detail="User not found")
+    if not user:
+        raise HTTPException(status_code=404)
 
-    return db_obj
+    return {
+        "user_id": user.user_id,
+        "email": user.email
+    }
+
+# @router.get("/{user_id}", response_model=UserResponse)
+# def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
+#     db_obj = db.query(User).filter(User.user_id == user_id).first()
+#
+#     if not db_obj:
+#         raise HTTPException(status_code=404, detail="User not found")
+#
+#     return db_obj
 
 
 @router.post("/", response_model=UserResponse)
@@ -42,8 +56,6 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_obj)
     return db_obj
-
-
 
 
 @router.patch("/{user_id}", response_model=UserResponse)
@@ -73,3 +85,4 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
     db.commit()
 
     return {"message": "User deleted successfully"}
+

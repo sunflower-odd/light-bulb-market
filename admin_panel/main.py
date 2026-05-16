@@ -3,11 +3,16 @@ from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
 from core.auth import get_current_user
+from router.auth import router as auth_router
 
 app = FastAPI()
-print("STARTED")
+
+print("AUTH ROUTES LOADED:", [r.path for r in app.routes])
+
+app.include_router(auth_router)
+
 BASE_PRODUCT_URL = "http://product_app:8000"
-BASE_ORDER_URL = "http://order_app:8001"
+BASE_ORDER_URL = "http://order_app:8000"
 
 app.add_middleware(
     CORSMiddleware,
@@ -115,3 +120,4 @@ def update_order(order_id: int, order: dict):
         f"{BASE_ORDER_URL}/products/{order_id}",
         json=order
     )
+
