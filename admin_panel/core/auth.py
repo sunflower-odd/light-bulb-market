@@ -1,8 +1,9 @@
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
+from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer
-from fastapi.security import OAuth2PasswordBearer
-from fastapi import  Depends, HTTPException
+
+security = HTTPBearer()
 
 SECRET_KEY = "supersecretkey"
 ALGORITHM = "HS256"
@@ -25,24 +26,6 @@ def decode_token(token: str):
     except JWTError:
         return None
 
-
-
-security = HTTPBearer()
-# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
-
-# def get_current_user(token: str = Depends(oauth2_scheme)):
-#     payload = decode_token(token)
-#
-#     if not payload:
-#         raise HTTPException(status_code=401, detail="Invalid token")
-#
-#     return payload
-
-from fastapi import Depends, HTTPException
-from order_service.auth import decode_token
-from fastapi.security import HTTPBearer
-
-security = HTTPBearer()
 
 def get_current_user(token=Depends(security)):
     payload = decode_token(token.credentials)

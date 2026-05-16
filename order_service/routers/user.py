@@ -1,32 +1,28 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Header
 from typing import List
 from sqlalchemy.orm import Session
 
 from order_service.db import get_db
 from order_service.models.user import User
 from order_service.schemas.user import UserCreate, UserUpdate, UserResponse
-from order_service.auth import create_access_token, get_current_user
-
 
 router = APIRouter(prefix="/users", tags=["Users"])
-
 router_auth = APIRouter(prefix="/auth", tags=["Auth"])
-
 
 @router.get("/", response_model=List[UserResponse])
 def get_users(db: Session = Depends(get_db)):
     return db.query(User).all()
 
-@router.get("/me")
+@router.get("/me", response_model=UserResponse)
 def get_me(
-    db: Session = Depends(get_db),
-    user=Depends(get_current_user)
+    x_user_id: int = Header(...),
+    db: Session = Depends(get_db)
 ):
-    db_user = db.query(User).filter(User.user_id == user["user_id"]).first()
+    db_user = db.query(User).filter(User.user_id == x_user_id).first()
 
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
-    print("USER:", user)
+
     return db_user
 
 @router.get("/{user_id}", response_model=UserResponse)
@@ -77,23 +73,3 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
     db.commit()
 
     return {"message": "User deleted successfully"}
-
-
-@router_auth.post("/login")
-def login(email: str, db: Session = Depends(get_db)):
-
-    user = db.query(User).filter(User.email == email).first()
-
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    token = create_access_token({
-        "user_id": user.user_id,
-        "email": user.email
-    })
-
-    return {
-        "access_token": token,
-        "token_type": "bearer"
-    }
-

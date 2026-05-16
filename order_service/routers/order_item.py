@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 import requests
 
-from product_service.db import get_db
+from order_service.db import get_db
 from order_service.models.order_item import OrderItem
 from order_service.schemas.order_item import OrderItemCreate, OrderItemUpdate, OrderItemResponse
 

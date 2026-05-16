@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from typing import List
 from sqlalchemy.orm import Session
 
-from product_service.db import get_db
+from order_service.db import get_db
 from order_service.models.address import Address
 from order_service.schemas.address import AddressCreate, AddressUpdate, AddressResponse
 

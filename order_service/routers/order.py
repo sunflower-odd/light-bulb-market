@@ -1,11 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Header
 
 from order_service.schemas.order import OrderCreate, OrderUpdate, OrderResponse
 
 from sqlalchemy.orm import Session
-from product_service.db import get_db
+from order_service.db import get_db
 
-from order_service.auth import get_current_user
 from order_service.schemas.checkout import CheckoutOrder
 from order_service.models.order import Order
 from order_service.models.order_item import OrderItem
@@ -18,13 +17,15 @@ router = APIRouter(prefix="/orders", tags=["Orders"])
 
 
 @router.get("/")
-def get_user_orders(
-    db: Session = Depends(get_db),
-    user=Depends(get_current_user)
-):
 
-    print("USER FROM AUTH:", user)
-    orders = db.query(Order).filter(Order.user_id == user["user_id"]).all()
+def get_user_orders(
+    x_user_id: int = Header(...),
+    db: Session = Depends(get_db),
+):
+    orders = db.query(Order).filter(
+        Order.user_id == x_user_id
+    ).all()
+
     return orders
 
 
@@ -81,15 +82,9 @@ def delete_order(order_id: int, db: Session = Depends(get_db)):
 @router.post("/checkout")
 def checkout(
     order: CheckoutOrder,
+    x_user_id: int = Header(...),
     db: Session = Depends(get_db),
-    user=Depends(get_current_user)
 ):
-
-    if not user:
-        raise HTTPException(status_code=401, detail="Unauthorized")
-
-    user_id = user["user_id"]
-
     total = 0
     discount = 0
 
@@ -97,6 +92,7 @@ def checkout(
     for item in order.items:
 
         product = get_product(item.product_id)
+
         if not product:
             raise HTTPException(status_code=404, detail="Product not found")
 
@@ -105,6 +101,7 @@ def checkout(
 
     # 2. promo
     if order.promo_id is not None:
+
         promo = get_promo(order.promo_id)
 
         if promo:
@@ -113,9 +110,9 @@ def checkout(
     # 3. final total
     final_total = total - (total * discount / 100)
 
-    # 4. создаём заказ уже с готовыми данными
+    # 4. создаём заказ
     db_order = Order(
-        user_id=user_id,
+        user_id=x_user_id,
         status="NEW",
         amount_rub=final_total
     )

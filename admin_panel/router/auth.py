@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from order_service.db import get_db
 from order_service.models.user import User
-from order_service.auth import create_access_token
+from ..core.auth import create_access_token
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 

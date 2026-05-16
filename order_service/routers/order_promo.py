@@ -3,7 +3,7 @@ from typing import List
 from sqlalchemy.orm import Session
 import requests
 
-from product_service.db import get_db
+from order_service.db import get_db
 from order_service.models.order_promo import OrderPromo
 from order_service.schemas.order_promo import OrderPromoCreate, OrderPromoUpdate, OrderPromoResponse
 

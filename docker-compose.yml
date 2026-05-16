@@ -89,14 +89,15 @@ services:
   # ---------------------------
   # ADMIN PANEL BACKEND
   # ---------------------------
-  admin_backend:
+  admin_panel:
     build: ./admin_panel
-    container_name: admin_backend
+    container_name: admin_panel
     depends_on:
       - order_app
       - product_app
     ports:
       - "8004:8000"
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
 volumes:
   pgdata_product:

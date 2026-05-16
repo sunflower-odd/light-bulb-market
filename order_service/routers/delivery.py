@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from typing import List
 from sqlalchemy.orm import Session
 
-from product_service.db import get_db
+from order_service.db import get_db
 from order_service.models.delivery import Delivery
 from order_service.schemas.delivery import DeliveryCreate, DeliveryResponse
 
