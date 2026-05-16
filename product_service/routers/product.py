@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends,  HTTPException
-from typing import List
+from fastapi import APIRouter, Depends,  HTTPException, Query
+from typing import List, Optional
 from sqlalchemy.orm import Session
 from product_service.schemas.product import ProductResponse, ProductCreate, ProductUpdate
 from product_service.models.product import Product
@@ -7,29 +7,29 @@ from product_service.db import get_db
 
 router = APIRouter(prefix="/products", tags=["Products"])
 
-
-from fastapi import APIRouter, Depends, Query
-from sqlalchemy.orm import Session
-from typing import List, Optional
-
 @router.get("/", response_model=List[ProductResponse])
 def get_products(
     db: Session = Depends(get_db),
     category_id: Optional[int] = Query(None),
+    min_price: Optional[float] = Query(None),
     max_price: Optional[float] = Query(None),
     search: Optional[str] = Query(None),
 ):
     query = db.query(Product)
 
-    # фильтр по категории
-    if category_id:
+    # категория
+    if category_id is not None:
         query = query.filter(Product.category_id == category_id)
 
-    # фильтр по цене
-    if max_price:
+    # цена от
+    if min_price is not None:
+        query = query.filter(Product.price >= min_price)
+
+    # цена до
+    if max_price is not None:
         query = query.filter(Product.price <= max_price)
 
-    # поиск по названию
+    # поиск
     if search:
         query = query.filter(Product.title.ilike(f"%{search}%"))
 
