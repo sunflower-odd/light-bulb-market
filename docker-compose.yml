@@ -86,7 +86,19 @@ services:
       timeout: 5s
       retries: 10
 
+  # ---------------------------
+  # ADMIN PANEL BACKEND
+  # ---------------------------
+  admin_backend:
+    build: ./admin_panel
+    container_name: admin_backend
+    depends_on:
+      - order_app
+      - product_app
+    ports:
+      - "8004:8000"
 
 volumes:
   pgdata_product:
   pgdata_order:
+

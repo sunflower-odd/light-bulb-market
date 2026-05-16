@@ -2,3 +2,4 @@
 .venv/
 product_service/.env
 order_service/.env
+admin_panel/.DS_Store
